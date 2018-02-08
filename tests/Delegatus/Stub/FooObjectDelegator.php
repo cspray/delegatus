@@ -10,12 +10,12 @@ namespace Delegatus\Stub;
 
 use Delegatus\Delegator;
 
-class FooDelegator {
+class FooObjectDelegator {
 
     use Delegator;
 
     function __construct(FooService $foo) {
-        $this->delegate($foo, ['foo']);
+        $this->delegateToObject(['foo'], $foo);
     }
 
 } 

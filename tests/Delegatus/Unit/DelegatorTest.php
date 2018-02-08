@@ -8,7 +8,8 @@
 
 namespace Delegatus\Unit;
 
-use Delegatus\Stub\FooDelegator;
+use Delegatus\Stub\BarCallbackDelegator;
+use Delegatus\Stub\FooObjectDelegator;
 use Delegatus\Stub\FooService;
 use Delegatus\Stub\InvalidDelegator;
 use PHPUnit_Framework_TestCase as UnitTestCase;
@@ -17,7 +18,11 @@ class DelegatorTest extends UnitTestCase {
 
     private function getFooDelegator() {
         $service = new FooService();
-        return new FooDelegator($service);
+        return new FooObjectDelegator($service);
+    }
+
+    private function getBarDelegator() {
+        return new BarCallbackDelegator();
     }
 
     private function getInvalidDelegator() {
@@ -31,10 +36,16 @@ class DelegatorTest extends UnitTestCase {
         $delegator->bar();
     }
 
-    function testMethodDelegatedReturnsValue() {
+    function testObjectMethodDelegatedReturnsValue() {
         $delegator = $this->getFooDelegator();
         $actual = $delegator->foo();
         $this->assertEquals('foo', $actual);
+    }
+
+    function testCallbackDelegatedReturnsValue() {
+        $delegator = $this->getBarDelegator();
+        $actual = $delegator->bar();
+        $this->assertSame('bar', $actual);
     }
 
     function testDelegateDoesNotHaveMethodThrowsException() {

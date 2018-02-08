@@ -12,20 +12,30 @@ use Delegatus\Exception\MethodNotFoundException;
 
 trait Delegator {
 
-    private $delegates = [];
+    private $_delegates = [];
 
     /**
-     * @param $object
      * @param array $methods
+     * @param object $object
      * @throws Exception\MethodNotFoundException
      */
-    protected function delegate($object, array $methods) {
+    protected function delegateToObject(array $methods, $object) {
         foreach ($methods as $method) {
             if (!method_exists($object, $method)) {
                 $msg = sprintf('Could not find "%s" method on delegate of type "%s"', $method, get_class($object));
                 throw new MethodNotFoundException($msg);
             }
-            $this->delegates[$method] = $object;
+            $this->_delegates[$method] = [$object, $method];
+        }
+    }
+
+    /**
+     * @param array $methods
+     * @param callable $cb
+     */
+    protected function delegateToCallable(array $methods, callable $cb) {
+        foreach ($methods as $method) {
+            $this->_delegates[$method] = $cb;
         }
     }
 
@@ -36,9 +46,8 @@ trait Delegator {
      * @throws Exception\MethodNotFoundException
      */
     function __call($method, array $args) {
-        if (array_key_exists($method, $this->delegates)) {
-            $delegate = $this->delegates[$method];
-            return call_user_func_array([$delegate, $method], $args);
+        if (array_key_exists($method, $this->_delegates)) {
+            return call_user_func_array($this->_delegates[$method], $args);
         }
 
         throw new MethodNotFoundException(sprintf('Could not find "%s" method.', $method));

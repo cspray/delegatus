@@ -15,7 +15,7 @@ class InvalidDelegator {
     use Delegator;
 
     function __construct(FooService $foo) {
-        $this->delegate($foo, ['notFound']);
+        $this->delegateToObject(['notFound'], $foo);
     }
 
 } 
